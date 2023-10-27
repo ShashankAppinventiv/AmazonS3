@@ -1,15 +1,18 @@
 import * as AWS from 'aws-sdk';
+import { S3Client ,GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import axios from 'axios';
 import dotenv from 'dotenv'
 dotenv.config();
 
 class AmazonS3 {
-    private awsAccessKeyId = process.env.AWSACCESSKEYID;
-    private awsSecretAccessKey =process.env.AWSSECRETACCESSKEY 
+    private awsAccessKeyId = `${process.env.AWSACCESSKEYID}`;
+    private awsSecretAccessKey =`${process.env.AWSSECRETACCESSKEY}` 
     private regionName =process.env.REGIONNAME ;
     private s3BucketName = 'my-bucket-create-from-program';
     private s3ObjectKey = 'image3'; // Specify the object key in your S3 bucket
     private s3:AWS.S3;
+    private s3Client:S3Client;
     // private imageUrl = 'https://www.edamam.com/food-img/90d/90dcfa94f6d38aea879fdf50322b6524.jpg';
     constructor(){
 
@@ -17,6 +20,13 @@ class AmazonS3 {
           accessKeyId: this.awsAccessKeyId,
           secretAccessKey: this.awsSecretAccessKey,
           region: this.regionName,
+        });
+        this.s3Client=new S3Client({
+          region: this.regionName,
+          credentials:{
+            accessKeyId: this.awsAccessKeyId,
+            secretAccessKey: this.awsSecretAccessKey,
+          }
         });
     }
     public createBucket(){
@@ -56,6 +66,14 @@ class AmazonS3 {
       } catch (error) {
         console.error('Error uploading the image:', error);
       }
+    }
+    public async getPresignedUrl<T extends string | undefined>(key:T) {
+      const command = new GetObjectCommand({
+        Bucket: "shashank-private",
+        Key: key
+      })
+      const url=await getSignedUrl(this.s3Client,command);//{expiresIn:20}
+      console.log(url);
     }
     public async getImage(){
       let params = {

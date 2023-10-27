@@ -19,7 +19,8 @@ class App {
   loadRouter() {
     // amazonS3.uploadImageToS3('https://www.edamam.com/food-img/90d/90dcfa94f6d38aea879fdf50322b6524.jpg');
     // amazonS3.createBucket();
-    amazonS3.getImage();
+    // amazonS3.getImage();
+    amazonS3.getPresignedUrl('unnamed.jpg');
   }
   initServer() {
     this.app.listen(this.port, this.callback);
